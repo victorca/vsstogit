@@ -1,1 +1,0 @@
-#!C:\Python26 pythonimport osimport sysf = open('outHistoryComplete', 'r')historyComplete = f.read() #Leer todo el historialf.close()print historyComplete
