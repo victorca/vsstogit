@@ -4,6 +4,9 @@ import os
 import sys
 import glob
 import shutil
+import datetime
+
+initDate = datetime.datetime.now()
 
 ##Bloque para introducir variables##########
 formatDate = '/' #Ejemplo si el formato de fechas fuera 2/11/12
@@ -191,6 +194,7 @@ else:
 	sys.exit()
 ##FIN Bloque Obtener lista de Diccionarios, cada diccionario es una version VSS del proyecto#############
 
+##Bloque ejecutar conversion de VSS a GIT#################################################################
 toCountVersions = 0 #Contar las versiones por las que vaya el ciclo
 for i in listVersions:
 	if i['comment'] == '':
@@ -202,75 +206,32 @@ for i in listVersions:
 		commentGit += ' ' + i['label_comment']
 	commentGit = commentGit.replace(' ', '-')
 	
-	#createDir = 'tmp' + str(listVersions.index(i))
 	checkGit = '.check-git' #+ str(listVersions.index(i))
-	#if len(glob.glob(createDir)) == 0:
-	#if os.path.isdir(createDir):
-	#	shutil.rmtree(createDir)
-	#os.mkdir(createDir)
 	print i
 	os.chdir(nameProjectGitGenerate)
 	f = open(checkGit, 'w')
 	f.write(str(listVersions.index(i)))
 	f.close()
-	#os.system('"' + comandSS + '"' + ' history ' + projectVss + ' -R > outHistoryComplete')
+	
 	os.system('"' + comandSS + '"' + ' get ' + projectVss + ' -Vd' + i['dateGit'] + ';' + i['time'])
 	
-	#os.chdir(originalDirectory)
-	#copyInTo(createDir, nameProjectGitGenerate)
-	
-	#os.chdir(nameProjectGitGenerate)
-	#os.chdir(nameProjectGitGenerate)
 	os.system('"' + pathExeGit + '" config --global user.email ' + i['user'] + '@' + projectVssGit)
 	os.system('"' + pathExeGit + '" config --global user.name ' + i['user'])
 	os.system('"' + pathExeGit + '" add .')
 	os.system(r'"' + pathExeGit + '" commit -m ' + commentGit + ' --date=' + i['dateGit'] + ';' + i['time'])
-	#os.system('"' + pathExeGit + '" config --global user.email victor@gmail.com')
-	#os.system('"' + pathExeGit + '" config --global user.name victor')
-	#os.system('"' + pathExeGit + '" add .')
-	#os.system(r'"' + pathExeGit + '" commit -m candela')
 	
 	if i['label'] != '':
 		os.system('"' + pathExeGit + '" tag ' + i['label'])
 	
-	#os.remove(checkGit)
-	#fileList = os.listdir(os.getcwd())
-	#for i in fileList:
-	#	if i != '.git':
-	#		if os.path.isdir(i):
-	#			shutil.rmtree(i)
-	#		else:
-	#			os.remove(i)
-	
-	#print '"' + pathExeGit + '" commit -m "Candela"'
 	os.chdir(originalDirectory)
-	#removeExceptGit(nameProjectGitGenerate) #Remover todo menos la carpeta .git
-	#os.chdir(originalDirectory)
-	
-	#shutil.copytree(nameProjectGitGenerate + '/.git', '.git')
-	#shutil.rmtree(nameProjectGitGenerate)
-	#os.mkdir(nameProjectGitGenerate)
-	#shutil.copytree('.git', nameProjectGitGenerate + '/.git')
-	#sshutil.rmtree('.git')
-	
-	#os.chdir(originalDirectory)
-	#shutil.rmtree(createDir)
-	#os.remove(checkGit)
-	#os.chdir(originalDirectory)
-	#shutil.move(createDir + "/*", nameProjectGitGenerate)
-	#os.chdir(originalDirectory)
-	#shutil.rmtree(createDir)
-	
-	#print commentGit
-	#print listVersions
-	#print len(listVersions)
 
+finishDate = datetime.datetime.now()
 
-#print listVersions
-#print countVersions
+print "\n"
 
-#print pathVss, pathDb, projectVss, userVss, passVss
+print "Terminado"
 
-#sys.exit()
-#os.system('"C:\Archivos de programa\Microsoft Visual SourceSafe\ss.exe" history $/test1')
-#print candela
+print "\n"
+restDates = finishDate - initDate
+print "El proceso ha durado: " + str(restDates)
+##FIN Bloque ejecutar conversion de VSS a GIT#################################################################
