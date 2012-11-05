@@ -11,5 +11,3 @@ set SSDIR=C:\Documents and Settings\victor\Escritorio\newDB
 "C:\Archivos de programa\Git\bin\git.exe" init repoGITTTTTTTTT
 "C:\Archivos de programa\Git\bin\git.exe" add .
 "C:\Archivos de programa\Git\bin\git.exe" commit -m "comentario del commit" --date="2012-11-03 15:41"
-"C:\Archivos de programa\Git\bin\git.exe" config --global user.email "vitycruz@gmail.com"
-"C:\Archivos de programa\Git\bin\git.exe" config --global user.name "Victor Cruz Alonso"

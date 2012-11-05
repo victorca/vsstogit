@@ -22,6 +22,9 @@ pathVss = str(raw_input("Directorio VSS (PATH):"))
 
 print "Introducir proyecto, no es necesario incorporar el prefijo $/"
 projectVss = str(raw_input("Proyecto a Migrar: $/"))
+projectVssGit = projectVss #Variable para crear repo GIT para que no salga $/<repoGit>
+
+originalDirectory = os.getcwd() #Directorio original raiz del script
 ##Fin Bloque para introducir datos##############
 
 ##Bloque para comprobar la validez de los datos introducidos por el usuario###########
@@ -59,6 +62,31 @@ def retireOfList(listParser, varReject):
 			result.append(i)
 	return result
 
+	
+#Function para copiar todos los ficheros y archivos de un directorio a otro
+#En este caso cuandos se obtenga(get) en la carpeta 'tmp' una version se copiara para
+#la carpeta de git todo su contenido y luego se dara commit
+def copyInTo(dirIn, dirOut):
+	fileList = os.listdir(dirIn)  
+	dest = dirOut 
+	for i in fileList:  
+		src = dirIn + '/' + i  
+		shutil.move(src,dest)
+
+#Function para remover dentro de una carpeta todo menos la carpeta .git
+def removeExceptGit(pathDir):
+	originalDirectory = os.getcwd() #Directorio original raiz del script
+	fileList = os.listdir(pathDir)
+	os.chdir(pathDir)
+	
+	for i in fileList:
+		if i != '.git':
+			if os.path.isdir(i):
+				shutil.rmtree(i)
+			else:
+				os.remove(i)
+	os.chdir(originalDirectory)
+
 ##FIN Bloque de Funciones para Utilizar###############################################
 
 #Camino al ejecutable C:\Archivos de programa\Microsoft Visual SourceSafe\ss.exe de VSS
@@ -82,7 +110,7 @@ f.close()
 countVersions = historyComplete.count('User:') #Cantidad de versiones que tiene el proyecto
 print "Obteniendo cantidad de versiones de VSS para migrar a GIT: "
 
-nameProjectGitGenerate = projectVss + 'GIT'
+nameProjectGitGenerate = projectVssGit + 'GIT'
 print "Creando nombre de Proyecto GIT: " + nameProjectGitGenerate
 
 #Crear repositorio GIT con nombre del proyecto pasado por el usuario
@@ -164,7 +192,6 @@ else:
 ##FIN Bloque Obtener lista de Diccionarios, cada diccionario es una version VSS del proyecto#############
 
 toCountVersions = 0 #Contar las versiones por las que vaya el ciclo
-originalDirectory = os.getcwd() #Directorio original raiz del script
 for i in listVersions:
 	if i['comment'] == '':
 		commentGit = 'Ejecutado por ' + i['user'] + ' en la fecha ' + i['dateGit'] + '; ' + i['time'] 
@@ -173,23 +200,71 @@ for i in listVersions:
 	
 	if i['label_comment'] != '':
 		commentGit += ' ' + i['label_comment']
+	commentGit = commentGit.replace(' ', '-')
 	
-	createDir = 'tmp' #+ str(listVersions.index(i))
+	#createDir = 'tmp' + str(listVersions.index(i))
 	checkGit = 'check-git-' + str(listVersions.index(i))
 	#if len(glob.glob(createDir)) == 0:
-	os.mkdir(createDir)
-	os.chdir(createDir)
+	#if os.path.isdir(createDir):
+	#	shutil.rmtree(createDir)
+	#os.mkdir(createDir)
+	print i
+	os.chdir(nameProjectGitGenerate)
 	f = open(checkGit, 'w')
 	f.close()
 	#os.system('"' + comandSS + '"' + ' history ' + projectVss + ' -R > outHistoryComplete')
 	os.system('"' + comandSS + '"' + ' get ' + projectVss + ' -Vd' + i['dateGit'] + ';' + i['time'])
-	#os.remove(checkGit)
 	
+	#os.chdir(originalDirectory)
+	#copyInTo(createDir, nameProjectGitGenerate)
+	
+	#os.chdir(nameProjectGitGenerate)
+	#os.chdir(nameProjectGitGenerate)
+	os.system('"' + pathExeGit + '" config --global user.email ' + i['user'] + '@' + projectVssGit)
+	os.system('"' + pathExeGit + '" config --global user.name ' + i['user'])
+	os.system('"' + pathExeGit + '" add .')
+	os.system(r'"' + pathExeGit + '" commit -m ' + commentGit + ' --date=' + i['dateGit'] + ';' + i['time'])
+	#os.system('"' + pathExeGit + '" config --global user.email victor@gmail.com')
+	#os.system('"' + pathExeGit + '" config --global user.name victor')
+	#os.system('"' + pathExeGit + '" add .')
+	#os.system(r'"' + pathExeGit + '" commit -m candela')
+	
+	if i['label'] != '':
+		os.system('"' + pathExeGit + '" tag ' + i['label'])
+	
+	os.remove(checkGit)
+	#fileList = os.listdir(os.getcwd())
+	#for i in fileList:
+	#	if i != '.git':
+	#		if os.path.isdir(i):
+	#			shutil.rmtree(i)
+	#		else:
+	#			os.remove(i)
+	
+	#print '"' + pathExeGit + '" commit -m "Candela"'
 	os.chdir(originalDirectory)
-	shutil.rmtree(createDir)
+	#removeExceptGit(nameProjectGitGenerate) #Remover todo menos la carpeta .git
+	#os.chdir(originalDirectory)
 	
-	print commentGit
-		
+	#shutil.copytree(nameProjectGitGenerate + '/.git', '.git')
+	#shutil.rmtree(nameProjectGitGenerate)
+	#os.mkdir(nameProjectGitGenerate)
+	#shutil.copytree('.git', nameProjectGitGenerate + '/.git')
+	#sshutil.rmtree('.git')
+	
+	#os.chdir(originalDirectory)
+	#shutil.rmtree(createDir)
+	#os.remove(checkGit)
+	#os.chdir(originalDirectory)
+	#shutil.move(createDir + "/*", nameProjectGitGenerate)
+	#os.chdir(originalDirectory)
+	#shutil.rmtree(createDir)
+	
+	#print commentGit
+	#print listVersions
+	#print len(listVersions)
+
+
 #print listVersions
 #print countVersions
 
